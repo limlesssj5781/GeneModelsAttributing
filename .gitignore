@@ -1,2 +1,3 @@
 # ignore model files
 *.model
+notes/.ipynb_checkpoints/*
