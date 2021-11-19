@@ -5,19 +5,27 @@ import numpy as np
 from collections import defaultdict
 
 
-# build a simple class of text dataset
 class DNADataset(Dataset):
     
     def __init__(self, data, size):
-        super(TextDataset, self).__init__()
+        super(DNADataset, self).__init__()
         self.size = size
-        self.x = np.zeros((size, 4))
+        self.x = np.zeros((len(data),size, 4))
         self.y = []
-        if data:
-            for i in range(size):
-                self.y.append(data[i][1])
-                pos = "acgt".find(data[i][j])
-                self.x[i, pos] = 1
+
+        for I in range(len(data)):
+            self.y.append(data[I][1])
+            if type(data[0][0])==str:
+                for i in range(size):
+                    seq = data[I][0].lower()
+                    # one hot encoding
+                    pos = "acgt".find(seq[i])
+                    if pos >= 0:
+                        self.x[I][i][pos] = 1
+            else:
+                self.x[I] = data[I][0]
+        self.x = torch.FloatTensor(self.x)
+        self.y = torch.FloatTensor(self.y)
 
         
     def __len__(self):
@@ -28,11 +36,7 @@ class DNADataset(Dataset):
         
     # return a subset of dataset of given range
     def get_subset(self, start, end):
-        subset = TextDataset(None, None, None, self.size)
-        subset.x = self.x[start:end]
-        subset.y = self.y[start:end]
-        return subset
-
-
+        
+        return DNADataset([(self.x[i],self.y[i]) for i in range(start, end)], self.size)
 
 
